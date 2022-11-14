@@ -8,9 +8,9 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ckrv9my.mongodb.net/?retryWrites=true&w=majority`;
-
+const uri = "mongodb+srv://tools_user:tools_user_pass@cluster0.ckrv9my.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
 
 
 // verify JWT 
@@ -31,7 +31,6 @@ function verifyJWT(req, res, next) {
 
 async function run() {
     try {
-        await client.connect();
         const toolCollection = client.db('tools-gallery').collection('tools');
         const orderCollection = client.db('tools-gallery').collection('orders');
         const reviewCollection = client.db('tools-gallery').collection('reviews');
@@ -39,13 +38,13 @@ async function run() {
 
 
         //get All users
-        app.get('/user',verifyJWT, async (req, res) => {
+        app.get('/user', async (req, res) => {
             const users = await usersCollection.find().toArray();
             res.send(users);
           })
 
           //get single user users
-        app.get('/user/:email', verifyJWT, async (req, res) => {
+        app.get('/user/:email', async (req, res) => {
             const email = req?.params?.email;
             const query = { email: email };
             const users = await usersCollection.find(query).toArray(); 
@@ -53,7 +52,7 @@ async function run() {
           })
 
           // User profile update
-          app.put('/user/profile/:email', verifyJWT, async (req, res) => {
+          app.put('/user/profile/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body; 
             const filter = { email: email };
@@ -67,7 +66,7 @@ async function run() {
           })
 
           //Delete user
-          app.delete('/user/:id', verifyJWT,     async (req, res) => {
+          app.delete('/user/:id',  async (req, res) => {
             const userId = req.params.id;
             const filter = { _id: ObjectId(userId) };
             const result = await usersCollection.deleteOne(filter)
@@ -75,7 +74,7 @@ async function run() {
           })
       
         // user token generate by email 
-        app.put('/user/:email', verifyJWT, async (req, res) => {
+        app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
             const filter = { email: email };
@@ -90,7 +89,7 @@ async function run() {
         })
 
          // Check user admin or not
-        app.get('/admin/:email', verifyJWT, async (req, res) => {
+        app.get('/admin/:email', async (req, res) => {
 
             const email = req.params.email;
             const user = await usersCollection.findOne({ email: email });
@@ -99,7 +98,7 @@ async function run() {
           })
 
           // Make user admin route
-          app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+          app.put('/user/admin/:email', async (req, res) => {
             // console.log("Problem inside");
             const email = req.params.email;
             const filter = { email: email };
@@ -114,7 +113,7 @@ async function run() {
 
 
         //  get all tools 
-        app.get('/tools', verifyJWT, async (req, res) => {
+        app.get('/tools', async (req, res) => {
             const query = {};
             const cursor = toolCollection.find(query)
             const tools = await cursor.toArray();
