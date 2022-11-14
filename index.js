@@ -4,13 +4,13 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion , ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
+require('dotenv').config();
 
 app.use(cors());
 app.use(express.json());
 
 const uri = "mongodb+srv://tools_user:tools_user_pass@cluster0.ckrv9my.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-
 
 
 // verify JWT 
@@ -66,7 +66,7 @@ async function run() {
           })
 
           //Delete user
-          app.delete('/user/:id',  async (req, res) => {
+          app.delete('/user/:id', verifyJWT,  async (req, res) => {
             const userId = req.params.id;
             const filter = { _id: ObjectId(userId) };
             const result = await usersCollection.deleteOne(filter)
@@ -149,7 +149,7 @@ async function run() {
 
 
         //  Delete  tool  
-        app.delete('/tool/:id', async (req, res) => {
+        app.delete('/tool/:id', verifyJWT, async (req, res) => {
             const toolId = req.params.id;
             const filter = { _id: ObjectId(toolId) };
             const result = await toolCollection.deleteOne(filter);
@@ -187,7 +187,7 @@ async function run() {
         })
 
         //  Delete oder tool  for single user
-        app.delete('/order/:id', async (req, res) => {
+        app.delete('/order/:id', verifyJWT, async (req, res) => {
             const toolId = req.params.id;
             const filter = { _id: ObjectId(toolId) };
             const result = await orderCollection.deleteOne(filter);
